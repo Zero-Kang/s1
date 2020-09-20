@@ -26,4 +26,8 @@ public class SampleController {
     }
 
 
+    @GetMapping("/callAjax")
+    public void callAjax(){
+
+    }
 }

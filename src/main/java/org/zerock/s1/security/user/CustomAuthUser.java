@@ -1,10 +1,12 @@
 package org.zerock.s1.security.user;
 
+import com.google.gson.Gson;
 import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.extern.log4j.Log4j2;
+import net.minidev.json.JSONObject;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.User;
@@ -25,6 +27,8 @@ public class CustomAuthUser extends User implements OAuth2User, Serializable {
     private String name;
     private boolean social;
 
+    private ZerockMember zerockMember;
+
     private Map<String, Object> attributes;
 
     public CustomAuthUser(ZerockMember zerockMember) {
@@ -32,6 +36,7 @@ public class CustomAuthUser extends User implements OAuth2User, Serializable {
                 zerockMember.getPassword(),
                 zerockMember.getRoleSet().stream().map(autority -> new SimpleGrantedAuthority("ROLE_"+autority.name())).collect(Collectors.toSet()));
         this.name = zerockMember.getName();
+        this.zerockMember = zerockMember;
         this.social = false;
     }
 
@@ -43,9 +48,9 @@ public class CustomAuthUser extends User implements OAuth2User, Serializable {
         this.attributes = attributes;
     }
 
-
     @Override
     public Map<String, Object> getAttributes() {
         return this.attributes;
     }
+
 }

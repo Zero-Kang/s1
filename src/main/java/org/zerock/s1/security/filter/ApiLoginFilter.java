@@ -9,6 +9,8 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AbstractAuthenticationProcessingFilter;
 import org.zerock.s1.security.service.CustomUserDetailsService;
+import org.zerock.s1.security.token.JwtUtils;
+import org.zerock.s1.security.user.CustomAuthUser;
 
 import javax.servlet.FilterChain;
 import javax.servlet.ServletException;
@@ -20,8 +22,12 @@ import java.io.IOException;
 @Log4j2
 public class ApiLoginFilter extends AbstractAuthenticationProcessingFilter {
 
-    public ApiLoginFilter(String defaultFilterProcessesUrl) {
+    private JwtUtils jwtUtils;
+
+    public ApiLoginFilter(String defaultFilterProcessesUrl, JwtUtils jwtUtils) {
+
         super(defaultFilterProcessesUrl);
+        this.jwtUtils = jwtUtils;
     }
 
     @Override
@@ -48,11 +54,21 @@ public class ApiLoginFilter extends AbstractAuthenticationProcessingFilter {
         log.info("-----------------ApiLoginFilter---------------------");
         log.info("successfulAuthentication: " + authResult);
 
-        Cookie ck = new Cookie("test","123456");
-        ck.setPath("/");
-        ck.setMaxAge(180);
+        log.info(authResult.getDetails());
+        log.info(authResult.getCredentials());
 
-        response.addCookie(ck);
+        log.info(authResult.getPrincipal());
+
+        //email address
+        String zerockMemerJSON = ((CustomAuthUser)authResult.getPrincipal()).getUsername();
+
+
+        String token = jwtUtils.generateJwtToken(zerockMemerJSON);
+
+        response.getOutputStream().write(token.getBytes());
+
+        log.info(token);
+
     }
 
 }
